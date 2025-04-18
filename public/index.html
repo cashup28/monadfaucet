@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monad Faucet</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Monad Faucet</h1>
+        <div id="wallet-status">Solana cüzdanı bağlı değil</div>
+        <button id="connect-wallet">Cüzdanı Bağla</button>
+        
+        <div class="form-group">
+            <label for="monad-address">Monad EVM Adresi:</label>
+            <input type="text" id="monad-address" placeholder="0x...">
+        </div>
+        
+        <button id="register-btn" disabled>Kayıt Oluştur</button>
+        
+        <div id="message"></div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.70.1/lib/index.iife.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

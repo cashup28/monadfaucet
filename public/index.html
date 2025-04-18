@@ -2,27 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Monad Faucet</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Phantom Wallet için ön yükleme -->
+    <link rel="preconnect" href="https://phantom.app">
 </head>
 <body>
     <div class="container">
         <h1>Monad Faucet</h1>
-        <div id="wallet-status">Solana cüzdanı bağlı değil</div>
-        <button id="connect-wallet">Cüzdanı Bağla</button>
+        <div id="wallet-status" class="wallet-status">Solana cüzdanı bağlı değil</div>
+        <button id="connect-wallet" class="wallet-btn">Cüzdanı Bağla</button>
         
         <div class="form-group">
             <label for="monad-address">Monad EVM Adresi:</label>
-            <input type="text" id="monad-address" placeholder="0x...">
+            <input type="text" id="monad-address" placeholder="0x..." disabled>
         </div>
         
-        <button id="register-btn" disabled>Kayıt Oluştur</button>
+        <button id="register-btn" class="register-btn" disabled>Kayıt Oluştur</button>
         
-        <div id="message"></div>
+        <div id="message" class="message"></div>
     </div>
-    
+
+    <!-- Scriptler -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.70.1/lib/index.iife.min.js"></script>
+    <script>
+      // Phantom Wallet inject kontrolü
+      window.addEventListener('load', function() {
+        if (!window.solana) {
+          document.getElementById('connect-wallet').textContent = "Phantom Yükle";
+          document.getElementById('connect-wallet').onclick = function() {
+            window.open('https://phantom.app/', '_blank');
+          };
+        }
+      });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

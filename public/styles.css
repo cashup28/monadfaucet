@@ -1,3 +1,49 @@
+/* Temel stiller */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 25px;
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Cüzdan buton stilleri */
+.wallet-btn {
+  background: #9945FF;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin: 10px 0;
+  transition: all 0.3s;
+}
+
+.wallet-btn.connected {
+  background: #FF453A;
+}
+
+.wallet-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Diğer stiller... (önceki CSS içeriğini koruyun) */
+
 /* Yükleme spinnerı */
 .loading-spinner {
     display: inline-block;

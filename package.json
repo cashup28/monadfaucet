@@ -2,10 +2,10 @@
     "name": "monadfaucet",
     "version": "1.0.0",
     "scripts": {
-      "build": "echo 'Build complete'"
+        "build": "echo 'Build complete'"
     },
     "dependencies": {
-      "@solana/web3.js": "^1.70.1"
-    },
-    "devDependencies": {}
-  }
+        "@solana/web3.js": "^1.70.1",
+        "firebase": "^11.6.0"
+    }
+}

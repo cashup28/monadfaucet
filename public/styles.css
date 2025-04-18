@@ -61,6 +61,32 @@
   transform: translateY(-2px);
 }
 
+/* Input alanı stilleri */
+#monad-address {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+#monad-address:focus {
+  border-color: #9945FF;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(153, 69, 255, 0.2);
+}
+
+#monad-address:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* Geçersiz adres stili */
+#monad-address:invalid {
+  border-color: #ff4444;
+}
+
 /* Diğer stiller... */
 
 /* Yükleme spinnerı */

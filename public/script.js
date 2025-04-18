@@ -199,6 +199,31 @@ function resetWallet() {
   if (profileCard) profileCard.remove();
 }
 
+// Sayfa yüklendiğinde çalışacak init fonksiyonu
+function initWallet() {
+  // Input alanını başlangıçta disabled yap
+  monadAddressInput.disabled = true;
+  
+  // Input dinleyicisini ekle
+  monadAddressInput.addEventListener('input', function() {
+    const address = this.value.trim();
+    const isValid = /^0x[a-fA-F0-9]{40}$/.test(address);
+    
+    // Görsel feedback
+    this.style.borderColor = isValid ? '#4CAF50' : '#f44336';
+    
+    // Kayıt butonunu ayarla
+    registerBtn.disabled = !isValid;
+  });
+}
+
+// Cüzdan bağlandığında input'u aktif et
+function updateWalletUI() {
+  walletStatus.textContent = `Bağlı cüzdan: ${shortAddress(solanaWallet)}`;
+  connectWalletBtn.textContent = "Bağlantıyı Kes";
+  monadAddressInput.disabled = false; // Input'u aktif hale getir
+}
+
 // Diğer fonksiyonlar (önceki kodunuzdan aynen alın)
 // initWallet, handleWalletConnect, handleWalletDisconnect, 
 // updateWalletUI, showProfile, setLoading, resetWallet, showMessage

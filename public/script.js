@@ -6,80 +6,77 @@ const monadAddressInput = document.getElementById('monad-address');
 const registerBtn = document.getElementById('register-btn');
 const messageDiv = document.getElementById('message');
 
-// Sayfa yüklendiğinde cüzdan durumunu kontrol et
+// Sayfa yüklendiğinde
 document.addEventListener('DOMContentLoaded', () => {
   initWallet();
+  setupEventListeners();
 });
 
-// Cüzdan başlatma
-async function initWallet() {
-  if (window.solana?.isPhantom) {
-    window.solana.on('connect', () => {
-      console.log("Cüzdan otomatik bağlandı");
-      handleWalletConnect();
-    });
-    
-    window.solana.on('disconnect', () => {
-      console.log("Cüzdan bağlantısı kesildi");
-      resetWallet();
-    });
-    
-    // Eğer önceden bağlıysa
-    if (window.solana.isConnected) {
-      await handleWalletConnect();
-    }
-  }
+// Event listeners
+function setupEventListeners() {
+  // Monad adres validasyonu
+  monadAddressInput.addEventListener('input', validateMonadAddress);
+  
+  // Kayıt butonu
+  registerBtn.addEventListener('click', handleRegistration);
 }
 
-// Cüzdan bağlantı/çıkış butonu
-connectWalletBtn.addEventListener('click', async () => {
-  try {
-    if (solanaWallet) {
-      await handleWalletDisconnect();
-    } else {
-      await handleWalletConnect();
-    }
-  } catch (err) {
-    console.error('Cüzdan işlemi hatası:', err);
-    showMessage(`Hata: ${err.message}`, 'error');
-  }
-});
+// Monad adres validasyonu
+function validateMonadAddress() {
+  const address = monadAddressInput.value.trim();
+  const isValid = /^0x[a-fA-F0-9]{40}$/.test(address);
+  
+  monadAddressInput.style.borderColor = isValid ? '#4CAF50' : '#f44336';
+  registerBtn.disabled = !isValid;
+  
+  return isValid;
+}
 
-// Bağlantı fonksiyonu
-async function handleWalletConnect() {
-  if (!window.solana) {
-    showMessage("Phantom Wallet bulunamadı. Lütfen yükleyin.", 'error');
-    window.open('https://phantom.app/', '_blank');
+// Kayıt işlemi
+async function handleRegistration() {
+  if (!solanaWallet) {
+    showMessage("Önce cüzdanı bağlayın", 'error');
     return;
   }
 
-  setLoading(connectWalletBtn, true);
-  try {
-    const response = await window.solana.connect();
-    solanaWallet = response.publicKey.toString();
-    updateWalletUI();
-    await checkExistingRegistration();
-    showMessage("Cüzdan başarıyla bağlandı", 'success');
-  } catch (err) {
-    console.error("Bağlantı hatası:", err);
-    showMessage(`Bağlantı başarısız: ${err.message}`, 'error');
-  } finally {
-    setLoading(connectWalletBtn, false);
+  const monadAddress = monadAddressInput.value.trim();
+  if (!validateMonadAddress()) {
+    showMessage("Geçersiz Monad adresi", 'error');
+    return;
   }
-}
 
-// Çıkış fonksiyonu
-async function handleWalletDisconnect() {
-  setLoading(connectWalletBtn, true);
+  setLoading(registerBtn, true);
   try {
-    await window.solana.disconnect();
-    resetWallet();
-    showMessage("Cüzdan bağlantısı kesildi", 'info');
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        solanaWallet,
+        monadAddress
+      })
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) throw new Error(data.error || 'Kayıt başarısız');
+
+    showMessage("Kayıt başarıyla oluşturuldu!", 'success');
+    showProfile({
+      userId: data.userId,
+      solanaWallet,
+      monadAddress,
+      createdAt: new Date().toISOString()
+    });
+    
+    monadAddressInput.disabled = true;
+    registerBtn.disabled = true;
   } catch (err) {
-    console.error("Çıkış hatası:", err);
-    showMessage(`Çıkış başarısız: ${err.message}`, 'error');
+    console.error('Kayıt hatası:', err);
+    showMessage(`Kayıt hatası: ${err.message}`, 'error');
   } finally {
-    setLoading(connectWalletBtn, false);
+    setLoading(registerBtn, false);
   }
 }
 // Cüzdan bağlantı/çıkış butonu işleyicisi
@@ -201,3 +198,7 @@ function resetWallet() {
   const profileCard = document.querySelector('.profile-card');
   if (profileCard) profileCard.remove();
 }
+
+// Diğer fonksiyonlar (önceki kodunuzdan aynen alın)
+// initWallet, handleWalletConnect, handleWalletDisconnect, 
+// updateWalletUI, showProfile, setLoading, resetWallet, showMessage

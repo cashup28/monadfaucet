@@ -1,6 +1,5 @@
-// pages/api/register.js
 import { db } from '../../lib/firebase';
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 
 export default async function handler(req, res) {
@@ -10,7 +9,6 @@ export default async function handler(req, res) {
 
   const { solanaWallet, monadAddress } = req.body;
 
-  // Validasyon
   if (!solanaWallet || !monadAddress) {
     return res.status(400).json({ error: 'Eksik bilgi' });
   }
@@ -20,41 +18,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Tekil kontrolü
-    const walletQuery = query(collection(db, 'registrations'), 
-      where("solanaWallet", "==", solanaWallet));
-    const addressQuery = query(collection(db, 'registrations'),
-      where("monadAddress", "==", monadAddress));
-
-    const [walletSnapshot, addressSnapshot] = await Promise.all([
-      getDocs(walletQuery),
-      getDocs(addressQuery)
-    ]);
-
-    if (!walletSnapshot.empty) {
-      return res.status(400).json({ error: 'Bu cüzdan zaten kayıtlı' });
-    }
-
-    if (!addressSnapshot.empty) {
-      return res.status(400).json({ error: 'Bu adres zaten kullanılmış' });
-    }
-
-    // Yeni kayıt
-    const userId = uuidv4();
     const docRef = await addDoc(collection(db, 'registrations'), {
-      userId,
+      userId: uuidv4(),
       solanaWallet,
       monadAddress,
-      createdAt: new Date().toISOString(),
-      status: 'active'
+      createdAt: new Date().toISOString()
     });
 
     return res.status(200).json({ 
       success: true,
-      userId,
-      docId: docRef.id
+      userId: docRef.id,
+      solanaWallet,
+      monadAddress,
+      createdAt: new Date().toISOString()
     });
-
   } catch (err) {
     console.error('Database error:', err);
     return res.status(500).json({ error: 'Sunucu hatası' });

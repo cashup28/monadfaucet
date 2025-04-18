@@ -14,10 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Event listeners
 function setupEventListeners() {
-  // Monad adres validasyonu
   monadAddressInput.addEventListener('input', validateMonadAddress);
-  
-  // Kayıt butonu
   registerBtn.addEventListener('click', handleRegistration);
 }
 
@@ -27,7 +24,7 @@ function validateMonadAddress() {
   const isValid = /^0x[a-fA-F0-9]{40}$/.test(address);
   
   monadAddressInput.style.borderColor = isValid ? '#4CAF50' : '#f44336';
-  registerBtn.disabled = !isValid;
+  registerBtn.disabled = !isValid || !solanaWallet;
   
   return isValid;
 }
@@ -79,19 +76,6 @@ async function handleRegistration() {
     setLoading(registerBtn, false);
   }
 }
-// Cüzdan bağlantı/çıkış butonu işleyicisi
-connectWalletBtn.addEventListener('click', async () => {
-  try {
-    if (solanaWallet) {
-      await handleWalletDisconnect();
-    } else {
-      await handleWalletConnect();
-    }
-  } catch (err) {
-    console.error('Cüzdan işlemi hatası:', err);
-    showMessage(`İşlem başarısız: ${err.message}`, 'error');
-  }
-});
 
 // Cüzdan bağlantı fonksiyonu
 async function handleWalletConnect() {
@@ -106,7 +90,10 @@ async function handleWalletConnect() {
     const response = await window.solana.connect();
     solanaWallet = response.publicKey.toString();
     updateWalletUI();
-    await checkExistingRegistration();
+    showMessage("Cüzdan başarıyla bağlandı", 'success');
+  } catch (err) {
+    console.error("Bağlantı hatası:", err);
+    showMessage(`Bağlantı hatası: ${err.message}`, 'error');
   } finally {
     setLoading(connectWalletBtn, false);
   }
@@ -118,7 +105,10 @@ async function handleWalletDisconnect() {
   try {
     await window.solana.disconnect();
     resetWallet();
-    showMessage("Cüzdan bağlantısı kesildi", 'success');
+    showMessage("Cüzdan bağlantısı kesildi", 'info');
+  } catch (err) {
+    console.error("Çıkış hatası:", err);
+    showMessage(`Çıkış başarısız: ${err.message}`, 'error');
   } finally {
     setLoading(connectWalletBtn, false);
   }
@@ -127,42 +117,10 @@ async function handleWalletDisconnect() {
 // Cüzdan UI güncelleme
 function updateWalletUI() {
   walletStatus.textContent = `Bağlı cüzdan: ${shortAddress(solanaWallet)}`;
-  connectWalletBtn.textContent = "Cüzdanı Bağlantısını Kes";
+  connectWalletBtn.textContent = "Bağlantıyı Kes";
   connectWalletBtn.classList.add('connected');
-}
-
-// Kayıt kontrol fonksiyonu (gelişmiş versiyon)
-async function checkExistingRegistration() {
-  try {
-    setLoading(registerBtn, true);
-    monadAddressInput.disabled = true;
-    
-    const response = await fetch(`/api/check?solanaWallet=${encodeURIComponent(solanaWallet)}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (data.registered) {
-      showProfile(data.registration);
-      registerBtn.disabled = true;
-      showMessage("Daha önce kayıt olunmuş", 'info');
-    } else {
-      monadAddressInput.disabled = false;
-      registerBtn.disabled = false;
-      showMessage("Yeni kayıt oluşturabilirsiniz", 'info');
-    }
-  } catch (err) {
-    console.error('Kayıt kontrol hatası:', err);
-    showMessage("Kayıt bilgileri alınamadı", 'error');
-    // Kullanıcıya devam etme şansı ver
-    monadAddressInput.disabled = false;
-    registerBtn.disabled = false;
-  } finally {
-    setLoading(registerBtn, false);
-  }
+  monadAddressInput.disabled = false;
+  monadAddressInput.focus();
 }
 
 // Kısa adres formatı
@@ -193,37 +151,46 @@ function resetWallet() {
   connectWalletBtn.classList.remove('connected');
   monadAddressInput.disabled = true;
   registerBtn.disabled = true;
+  monadAddressInput.value = '';
   
-  // Profili temizle
   const profileCard = document.querySelector('.profile-card');
   if (profileCard) profileCard.remove();
 }
 
-// Sayfa yüklendiğinde çalışacak init fonksiyonu
+// Mesaj gösterme
+function showMessage(message, type) {
+  messageDiv.textContent = message;
+  messageDiv.className = `message-box ${type}`;
+  setTimeout(() => messageDiv.classList.remove(type), 5000);
+}
+
+// Profil gösterme
+function showProfile(data) {
+  const profileHTML = `
+    <div class="profile-card">
+      <h3>Profil Bilgileri</h3>
+      <div class="profile-info">
+        <p><strong>Kullanıcı ID:</strong> ${data.userId}</p>
+        <p><strong>Solana Cüzdan:</strong> ${shortAddress(data.solanaWallet)}</p>
+        <p><strong>Monad Adres:</strong> ${shortAddress(data.monadAddress)}</p>
+        <p><strong>Kayıt Tarihi:</strong> ${new Date(data.createdAt).toLocaleString()}</p>
+      </div>
+    </div>
+  `;
+  document.getElementById('profile-display').innerHTML = profileHTML;
+}
+
+// Cüzdan başlatma
 function initWallet() {
-  // Input alanını başlangıçta disabled yap
   monadAddressInput.disabled = true;
+  registerBtn.disabled = true;
   
-  // Input dinleyicisini ekle
-  monadAddressInput.addEventListener('input', function() {
-    const address = this.value.trim();
-    const isValid = /^0x[a-fA-F0-9]{40}$/.test(address);
+  if (window.solana?.isPhantom) {
+    window.solana.on('connect', () => handleWalletConnect());
+    window.solana.on('disconnect', () => resetWallet());
     
-    // Görsel feedback
-    this.style.borderColor = isValid ? '#4CAF50' : '#f44336';
-    
-    // Kayıt butonunu ayarla
-    registerBtn.disabled = !isValid;
-  });
+    if (window.solana.isConnected) {
+      handleWalletConnect();
+    }
+  }
 }
-
-// Cüzdan bağlandığında input'u aktif et
-function updateWalletUI() {
-  walletStatus.textContent = `Bağlı cüzdan: ${shortAddress(solanaWallet)}`;
-  connectWalletBtn.textContent = "Bağlantıyı Kes";
-  monadAddressInput.disabled = false; // Input'u aktif hale getir
-}
-
-// Diğer fonksiyonlar (önceki kodunuzdan aynen alın)
-// initWallet, handleWalletConnect, handleWalletDisconnect, 
-// updateWalletUI, showProfile, setLoading, resetWallet, showMessage

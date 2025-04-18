@@ -1,3 +1,24 @@
+/* Temel stiller */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 25px;
+  width: 100%;
+  max-width: 450px;
+}
+
 /* Form stilleri */
 .form-group {
   margin: 20px 0;
@@ -15,16 +36,17 @@
   border: 2px solid #ddd;
   border-radius: 8px;
   font-size: 16px;
-  transition: border 0.3s;
+  transition: all 0.3s;
 }
 
 .form-group input:focus {
   border-color: #9945FF;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(153, 69, 255, 0.2);
 }
 
 .form-group input:invalid {
-  border-color: #f44336;
+  border-color: #ff4444;
 }
 
 .form-group .hint {
@@ -61,59 +83,71 @@
   transform: translateY(-2px);
 }
 
-/* Input alanı stilleri */
-#monad-address {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.3s;
-}
-
-#monad-address:focus {
-  border-color: #9945FF;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(153, 69, 255, 0.2);
-}
-
-#monad-address:disabled {
-  background-color: #f5f5f5;
+.btn-primary:disabled, .btn-secondary:disabled {
+  background: #cccccc;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* Geçersiz adres stili */
-#monad-address:invalid {
-  border-color: #ff4444;
+/* Mesaj kutuları */
+.message-box {
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 5px;
+  display: none;
 }
 
-/* Diğer stiller... */
+.message-box.success {
+  background-color: #dff0d8;
+  color: #3c763d;
+  display: block;
+}
+
+.message-box.error {
+  background-color: #f2dede;
+  color: #a94442;
+  display: block;
+}
+
+.message-box.info {
+  background-color: #e7f3fe;
+  color: #31708f;
+  display: block;
+}
+
+/* Profil kartı */
+.profile-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.profile-card h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.profile-info p {
+  margin: 8px 0;
+}
 
 /* Yükleme spinnerı */
 .loading-spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  /* Bağlı cüzdan buton stili */
-  button.connected {
-    background-color: #f44336;
-  }
-  
-  /* Bilgi mesajı stili */
-  .info {
-    background-color: #e7f3fe;
-    color: #2196F3;
-    border-left: 6px solid #2196F3;
-  }
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
